@@ -89,6 +89,21 @@ def get_queue_by_name(name):
     return queue
 
 
+@app.route("/queue/failed/requeue-all")
+def queue_requeue_all():
+    fq = get_failed_queue()
+    for job_id in fq.job_ids:
+        requeue_job(job_id)
+    return redirect(url_for('queue_detail', name='failed'))
+
+
+@app.route("/queue/<name>/clear")
+def queue_empty(name):
+    queue = get_queue_by_name(name)
+    queue.empty()
+    return redirect(url_for('queue_detail', name=name))
+
+
 @app.route("/queue/<name>")
 def queue_detail(name):
     queue = get_queue_by_name(name)
@@ -96,15 +111,13 @@ def queue_detail(name):
     return render_template('queue.html', queue=queue)
 
 
-@app.route("/queue/<name>/job/<uuid>")
-def job_detail(name, uuid):
-    queue = get_queue_by_name(name)
-    job = queue.fetch_job(uuid)
-    return render_template('job.html', job=job, queue=queue)
-
-
-@app.route("/queue/<name>/job/<uuid>/requeue")
-def requeue_job(name, uuid):
-    queue = get_queue_by_name(name)
+@app.route("/queue/failed/job/<uuid>/requeue")
+def requeue_job(uuid):
     rq.requeue_job(uuid)
+    return redirect(url_for('index'))
+
+
+@app.route("/queue/<name>/job/<uuid>/cancel")
+def cancel(name, uuid):
+    rq.cancel_job(uuid)
     return redirect(url_for('index'))
