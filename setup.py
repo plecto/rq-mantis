@@ -15,5 +15,6 @@ setup(
     entry_points={
         'console_scripts': ['rq-mantis=rq_mantis.cmd:run']
     },
-    zip_safe=False
+    zip_safe=False,
+    include_package_data=True
 )
