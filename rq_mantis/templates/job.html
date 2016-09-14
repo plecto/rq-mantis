@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h2>{{ job.description }}</h2>
+    {% if job.is_failed %}
+        <pre>
+            {{ job.exc_info }}
+        </pre>
+
+    <h4><a href="/queue/{{ queue.name }}/job/{{ job.id }}/requeue">Requeue</a></h4>
+    {% endif %}
+
+{% endblock %}

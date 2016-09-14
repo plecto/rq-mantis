@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h2>{{ queue.name }}</h2>
+
+    {% if queue.count %}
+
+    <table>
+        <thead>
+        <tr>
+            {% if queue.name == 'failed' %}
+            <th></th>
+            {% endif %}
+            <th>Status</th>
+            <th>Description</th>
+            <th>Job Id</th>
+        </tr>
+        </thead>
+        {% for job in queue.jobs %}
+            <tr>
+                {% if queue.name == 'failed' %}
+                    <td><a href="/queue/{{ queue.name }}/job/{{ job.id }}/requeue">Reqeue</a></td>
+                {% endif %}
+                <td>{{ job.status }}</td>
+                <td><a href="/queue/{{ queue.name }}/job/{{ job.id }}">{{ job.description }}</a></td>
+                <td>{{ job.id }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    {% else %}
+        <p>No jobs in queue</p>
+    {% endif %}
+
+{% endblock %}

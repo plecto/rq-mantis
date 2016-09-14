@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Queues</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Queue</th>
+                <th>Workers</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for queue_name, queue_dict in queues.iteritems() %}
+            <tr>
+                <td><a href="/queue/{{ queue_name }}">{{ queue_name }}</a></td>
+                <td>{{ queue_dict.workers }}</td>
+                <td>{{ queue_dict.queue.count }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
