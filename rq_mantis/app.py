@@ -63,9 +63,11 @@ def index():
     for q in queues:
         queues_dict[q.name] = {'workers': 0, 'queue': q}
 
+    if 'failed' in queues_dict:
+        del queues_dict['failed']
+
     # Failed queue
     fq = get_failed_queue()
-    queues_dict[fq.name] = {'queue': fq, 'workers': None}
 
     # Count all the workers on the queues
     for w in workers:
@@ -73,7 +75,7 @@ def index():
             if q.name in queues_dict:
                 queues_dict[q.name]['workers'] += 1
 
-    return render_template('index.html', queues=queues_dict)
+    return render_template('index.html', queues=queues_dict, failed_queue=fq)
 
 
 def get_queue_by_name(name):

@@ -2,25 +2,16 @@
 <html>
 <head>
 <meta charset="UTF-8">
+{% block meta %}{% endblock %}
 <title>RQ Mantis</title>
-    <style>
-        tbody {
-            color: blue;
-        }
-        thead {
-            color: red;
-        }
-        table,th,td {
-            border: 1px solid black;
-        }
-    </style>
+<style>
+	{% include 'styles.css' %}
+</style>
 </head>
 
 <body>
-<h1>RQ Mantis</h1>
 {% block content %}
 {% endblock %}
-
 </body>
 
 </html>
