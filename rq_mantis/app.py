@@ -12,7 +12,6 @@ from rq import get_failed_queue
 from werkzeug.exceptions import ServiceUnavailable
 
 app = Flask(__name__)
-app.config.from_object('rq_mantis.settings')
 
 
 @app.before_first_request
@@ -107,7 +106,3 @@ def requeue_job(name, uuid):
     queue = get_queue_by_name(name)
     rq.requeue_job(uuid)
     return redirect(url_for('index'))
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
