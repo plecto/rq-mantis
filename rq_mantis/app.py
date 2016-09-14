@@ -41,7 +41,7 @@ def health_check():
             continue
 
         try:
-            os.kill(worker.name.split[1], 0)
+            os.kill(int(worker.name.split('.')[1]), 0)
         except OSError:
             continue
 
