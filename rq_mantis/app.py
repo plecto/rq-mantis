@@ -30,7 +30,7 @@ def pop_rq_connection(exception=None):
     rq.pop_connection()
 
 
-@app.route("/health-check")
+@app.route("/__ht/")
 def health_check():
     worker_count = 0
     hostname = socket.gethostname()
