@@ -10,7 +10,7 @@ from flask import url_for
 from redis import from_url
 from rq import get_failed_queue
 from werkzeug.exceptions import ServiceUnavailable
-
+from datetime import datetime
 app = Flask(__name__)
 
 
@@ -35,6 +35,16 @@ def health_check():
     worker_count = 0
     hostname = socket.gethostname()
     shortname, _, _ = hostname.partition('.')
+    key = 'scheduler_last_run' + '.' + shortname
+    last_scheduler_timestamp = current_app.redis_conn.get(key)
+
+    if last_scheduler_timestamp is None:
+        raise ServiceUnavailable("Scheduler not running")
+    d = datetime.strptime(last_scheduler_timestamp, '%Y-%m-%dT%H:%M:%S.%f')
+    if (datetime.now() - d).total_seconds() > 15:
+        # scheduler havent been running for 15 seconds and it should be running every 5
+        raise ServiceUnavailable("Scheduler not running")
+
     for worker in rq.Worker.all():
         # only run health-check against own workers
         if worker.name.split('.')[0] != shortname:
