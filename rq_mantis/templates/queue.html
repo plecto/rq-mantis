@@ -24,7 +24,7 @@
 				<th>Job Id</th>
 			</tr>
 			</thead>
-			{% for job in queue.jobs %}
+			{% for job in queue.jobs|sort(attribute='created_at', reverse=True)%}
 				<tr>
 					{% if queue.name == 'failed' %}
 						<td><a href="/queue/failed/job/{{ job.id }}/requeue">Reqeue</a></td>
