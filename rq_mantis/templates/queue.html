@@ -17,8 +17,10 @@
 				{% if queue.name == 'failed' %}
 					<th></th>
 				{% endif %}
+				<th>Created</th>
 				<th>Status</th>
 				<th>Description</th>
+				<th>Exc info</th>
 				<th>Job Id</th>
 			</tr>
 			</thead>
@@ -27,8 +29,14 @@
 					{% if queue.name == 'failed' %}
 						<td><a href="/queue/failed/job/{{ job.id }}/requeue">Reqeue</a></td>
 					{% endif %}
+					<td>{{ job.created_at }}</td>
 					<td>{{ job.status }}</td>
-					<td><a href="/queue/{{ queue.name }}/job/{{ job.id }}">{{ job.description }}</a></td>
+					<td>{{ job.description }}</td>
+					<td>
+						<pre>
+ 							{{ job.exc_info }}
+ 						</pre>
+					</td>
 					<td>{{ job.id }}</td>
 				</tr>
 			{% endfor %}
