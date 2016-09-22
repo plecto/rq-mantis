@@ -7,9 +7,15 @@
 	{% if queue.count %}
 
 		{% if queue.name == 'failed' %}
-			<a href="/queue/failed/requeue-all">Requeue all</a>
+			<form action="/queue/failed/requeue-all" method="POST">
+				<button type="submit">Requeue all</button>
+			</form>
+
+			<form action="/queue/{{ queue.name }}/clear" method="POST">
+				<button type="submit">Clear</button>
+			</form>
+
 		{% endif %}
-		<a href="/queue/{{ queue.name }}/clear">Clear</a>
 
 		<table>
 			<thead>
@@ -27,7 +33,14 @@
 			{% for job in queue.jobs|sort(attribute='created_at', reverse=True)%}
 				<tr>
 					{% if queue.name == 'failed' %}
-						<td><a href="/queue/failed/job/{{ job.id }}/requeue">Reqeue</a></td>
+						<td>
+							<form action="/queue/failed/job/{{ job.id }}/requeue" method="POST">
+								<button type="submit">Requeue</button>
+							</form>
+							<form action="/queue/failed/job/{{ job.id }}/clear" method="POST">
+								<button type="submit">Clear</button>
+							</form>
+						</td>
 					{% endif %}
 					<td>{{ job.created_at }}</td>
 					<td>{{ job.status }}</td>

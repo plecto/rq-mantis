@@ -6,6 +6,7 @@ from flask import Flask
 from flask import current_app
 from flask import redirect
 from flask import render_template
+from flask import request
 from flask import url_for
 from redis import from_url
 from rq import get_failed_queue
@@ -99,16 +100,24 @@ def get_queue_by_name(name):
     return queue
 
 
-@app.route("/queue/failed/requeue-all")
+@app.route("/queue/failed/requeue-all", methods=["POST"])
 def queue_requeue_all():
+
+    if 'confirm' not in request.form:
+        return render_confirm()
+
     fq = get_failed_queue()
     for job_id in fq.job_ids:
         requeue_job(job_id)
     return redirect(url_for('queue_detail', name='failed'))
 
 
-@app.route("/queue/<name>/clear")
+@app.route("/queue/<name>/clear", methods=["POST"])
 def queue_empty(name):
+
+    if 'confirm' not in request.form:
+        return render_confirm()
+
     queue = get_queue_by_name(name)
     queue.empty()
     return redirect(url_for('queue_detail', name=name))
@@ -121,13 +130,31 @@ def queue_detail(name):
     return render_template('queue.html', queue=queue)
 
 
-@app.route("/queue/failed/job/<uuid>/requeue")
+@app.route("/queue/failed/job/<uuid>/requeue", methods=["POST"])
 def requeue_job(uuid):
+
+    if 'confirm' not in request.form:
+        return render_confirm()
+
     rq.requeue_job(uuid)
-    return redirect(url_for('index'))
+    return redirect(url_for('queue_detail', name='failed'))
+
+
+@app.route("/queue/failed/job/<uuid>/clear", methods=["POST"])
+def clear_failed_job(uuid):
+
+    if 'confirm' not in request.form:
+        return render_confirm()
+
+    get_failed_queue().remove(uuid)
+    return redirect(url_for('queue_detail', name='failed'))
 
 
 @app.route("/queue/<name>/job/<uuid>/cancel")
 def cancel(name, uuid):
     rq.cancel_job(uuid)
-    return redirect(url_for('index'))
+    return redirect(url_for('queue_detail', name=name))
+
+
+def render_confirm():
+    return render_template('confirm.html')
