@@ -17,53 +17,49 @@
 
 		{% endif %}
 
-		<table class="table">
-			<colgroup>
-				{% if queue.name == 'failed' %}
-					<col width="10%" />
-				{% endif %}
-				<col width="10%" />
-				<col width="5%" />
-				<col width="25%" />
-				<col width="40%" />
-				<col width="10%" />
-			</colgroup>
-			<thead>
-			<tr>
-				{% if queue.name == 'failed' %}
-					<th></th>
-				{% endif %}
-				<th>Created</th>
-				<th>Status</th>
-				<th>Description</th>
-				<th>Exc info</th>
-				<th>Job Id</th>
-			</tr>
-			</thead>
+		<div class="queue">
 			{% for job in queue.jobs|sort(attribute='created_at', reverse=True)%}
-				<tr>
+				<div class="queue-job">
 					{% if queue.name == 'failed' %}
-						<td>
-							<form action="/queue/failed/job/{{ job.id }}/requeue" method="POST">
-								<button type="submit">Requeue</button>
-							</form>
-							<form action="/queue/failed/job/{{ job.id }}/clear" method="POST">
-								<button type="submit">Clear</button>
-							</form>
-						</td>
+						<div class="queue-job-part">
+							<table class="table">
+								<tbody>
+									<tr>
+										<td>{{ job.description }}</td>
+										<td>
+											<form action="/queue/failed/job/{{ job.id }}/requeue" method="POST">
+												<button type="submit">Requeue</button>
+											</form>
+										</td>
+										<td>
+											<form action="/queue/failed/job/{{ job.id }}/clear" method="POST">
+												<button type="submit">Clear</button>
+											</form>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					{% endif %}
-					<td>{{ job.created_at }}</td>
-					<td>{{ job.status }}</td>
-					<td>{{ job.description }}</td>
-					<td>
+					<div class="queue-job-part">
+						<table class="table">
+							<tbody>
+								<tr>
+									<td>{{ job.created_at }}</td>
+									<td>{{ job.status }}</td>
+									<td>{{ job.id }}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="queue-job-part">
 						<pre>
- 							{{ job.exc_info }}
- 						</pre>
-					</td>
-					<td>{{ job.id }}</td>
-				</tr>
+							{{ job.exc_info }}
+						</pre>
+					</div>
+				</div>
 			{% endfor %}
-		</table>
+		</div>
 
 	{% else %}
 		<p>No jobs in queue</p>
