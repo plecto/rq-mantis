@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+<div class="container">
 	<h2>{{ queue.name }}</h2>
 
 	{% if queue.count %}
@@ -17,7 +17,17 @@
 
 		{% endif %}
 
-		<table>
+		<table class="table">
+			<colgroup>
+				{% if queue.name == 'failed' %}
+					<col width="10%" />
+				{% endif %}
+				<col width="10%" />
+				<col width="5%" />
+				<col width="25%" />
+				<col width="40%" />
+				<col width="10%" />
+			</colgroup>
 			<thead>
 			<tr>
 				{% if queue.name == 'failed' %}
@@ -58,5 +68,5 @@
 	{% else %}
 		<p>No jobs in queue</p>
 	{% endif %}
-
+</div>
 {% endblock %}

@@ -1,11 +1,24 @@
 {% extends "base.html" %}
 
-{% block meta %}
-	<meta http-equiv="refresh" content="10">
+
+{% block js %}
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<script>
+jQuery(document).ready(function() {
+	var delay = 8 * 1000;
+	var refresh = function() {
+		$('#js-dashboard').load('/#js-dashboard', function() {
+			setTimeout(refresh, delay);
+		});
+	};
+	setTimeout(refresh, delay);
+});
+</script>
 {% endblock %}
 
+
 {% block content %}
-<div class="dashboard">
+<div class="dashboard" id="js-dashboard">
 	<table class="dashboard-table">
 		<thead>
 			<tr>

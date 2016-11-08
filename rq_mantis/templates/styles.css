@@ -66,3 +66,14 @@ a:hover, a:active, a:focus {
 	padding-top: 20px;
 	padding-bottom: 20px;
 }
+
+.container {
+	display: block;
+	width: 100%;
+}
+.table {
+	width: 100%;
+}
+.table td, .table th {
+	word-break: break-all;
+}
