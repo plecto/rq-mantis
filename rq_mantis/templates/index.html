@@ -28,7 +28,7 @@ jQuery(document).ready(function() {
 			</tr>
 		</thead>
 		<tbody>
-		{% for queue_name, queue_dict in queues.iteritems() %}
+		{% for queue_name, queue_dict in queues.items() %}
 			<tr>
 				<td class=""><a href="/queue/{{ queue_name }}">{{ queue_name }}</a></td>
 				<td class="dashboard-table-value">{{ queue_dict.workers }}</td>

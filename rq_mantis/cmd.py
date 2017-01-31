@@ -1,6 +1,6 @@
 import click
 
-from app import app
+from rq_mantis.app import app
 
 
 @click.command()
