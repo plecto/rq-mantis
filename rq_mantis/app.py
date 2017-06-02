@@ -1,6 +1,5 @@
 import os
 import socket
-
 import rq
 from flask import Flask
 from flask import current_app
@@ -123,11 +122,31 @@ def queue_empty(name):
     return redirect(url_for('queue_detail', name=name))
 
 
-@app.route("/queue/<name>")
-def queue_detail(name):
-    queue = get_queue_by_name(name)
+@app.route("/queue/<name>/page/<int:page>")
+@app.route("/queue/<name>", defaults={'page': 1})
+def queue_detail(name, page):
+    PAGE_SIZE = 10
 
-    return render_template('queue.html', queue=queue)
+    queue = get_queue_by_name(name)
+    if queue:
+        queue_object = {
+            'count': queue.count,
+            'name': name,
+            'jobs': [queue.fetch_job(job_id) for job_id in queue.get_job_ids(offset=(page-1)*PAGE_SIZE, length=PAGE_SIZE)]
+        }
+
+        last_page = (queue.count / PAGE_SIZE) + (1 if queue.count % PAGE_SIZE != 0 else 0)
+        return render_template('queue.html', queue=queue_object, page=page, last_page=last_page)
+
+    else:
+        return render_template('queue.html', queue={'count': None, 'name': name, 'jobs': []}, page=page, last_page=page)
+
+
+def url_for_other_page(page):
+    args = request.view_args.copy()
+    args['page'] = page
+    return url_for(request.endpoint, **args)
+app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 
 
 @app.route("/queue/failed/job/<uuid>/requeue", methods=["POST"])

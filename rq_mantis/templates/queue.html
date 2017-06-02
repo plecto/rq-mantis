@@ -3,7 +3,6 @@
 {% block content %}
 <div class="container">
 	<h2>{{ queue.name }}</h2>
-
 	{% if queue.count %}
 
 		{% if queue.name == 'failed' %}
@@ -16,9 +15,8 @@
 			</form>
 
 		{% endif %}
-
 		<div class="queue">
-			{% for job in queue.jobs|sort(attribute='created_at', reverse=True)%}
+			{% for job in queue.jobs|sort(attribute='created_at', reverse=True) %}
 				<div class="queue-job">
 					{% if queue.name == 'failed' %}
 						<div class="queue-job-part">
@@ -60,7 +58,21 @@
 				</div>
 			{% endfor %}
 		</div>
-
+        <div class=pagination>
+            {% if page is equalto 1 %} {% else %}
+            <div class="page-item">
+                <a href="{{ url_for_other_page(page-1) }}"> <b> < </b> Prev </a>
+            </div>
+            {% endif %}
+            <div class="page-item page-text">
+                Page {{ page }} / {{ last_page }}
+            </div>
+            {% if page is equalto last_page %} {% else %}
+            <div class="page-item">
+                <a href="{{ url_for_other_page(page+1) }}"> Next <b> > </b> </a>
+            </div>
+            {% endif %}
+        </div>
 	{% else %}
 		<p>No jobs in queue</p>
 	{% endif %}
