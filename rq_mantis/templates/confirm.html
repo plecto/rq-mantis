@@ -4,10 +4,39 @@
 
 	<h2>Please confirm</h2>
 	<h3>
-		<form method="POST">
+		<form method="post" id="confirmForm">
 			<input type="hidden" name="confirm" value="true">
 			<button type="submit">Confirm</button>
 		</form>
 	</h3>
+    <div id="loadingDiv"> <p>Loading...</p> </div>
+{% endblock %}
 
+{% block js %}
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<script>
+var $loading = $('#loadingDiv').hide();
+var $form = $("#confirmForm");
+$form.submit(function(e) {
+    $.ajax({
+           type: "POST",
+           url: "#",
+           data: {'confirm': true},
+           success: function(data)
+           {
+               // navigate back
+               window.history.back();
+           }
+         });
+    e.preventDefault();
+});
+
+$(document)
+  .ajaxStart(function () {
+    $loading.show();
+  })
+  .ajaxStop(function () {
+    $loading.hide();
+  });
+</script>
 {% endblock %}
