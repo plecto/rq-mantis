@@ -6,10 +6,10 @@
 <script>
 jQuery(document).ready(function() {
 	var delay = 8 * 1000;
-	var $dashboard = $('#js-dashboard');
 	var refresh = function() {
-		$dashboard.load("/ #js-dashboard");
-		setTimeout(refresh, delay);
+		$('#js-dashboard').load('/ #js-dashboard', function() {
+			setTimeout(refresh, delay);
+		});
 	};
 	setTimeout(refresh, delay);
 });
