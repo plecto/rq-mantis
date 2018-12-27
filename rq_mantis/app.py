@@ -45,23 +45,28 @@ def health_check():
     if (datetime.now() - d).total_seconds() > 15:
         # scheduler havent been running for 15 seconds and it should be running every 5
         raise ServiceUnavailable("Scheduler not running")
-
+    excepted_worker = 0
     for worker in rq.Worker.all():
         # only run health-check against own workers
         if worker.name.split('.')[0] != shortname:
             continue
 
         try:
-            os.kill(int(worker.name.split('.')[1]), 0)
+            os.kill(int(worker.name.split('.')[1]), 0)  # this checks if the process exists or not
         except OSError:
+            excepted_worker += 1
             continue
 
+        excepted_worker += 1
         if current_app.redis_conn.ttl(worker.key) > 0:
             worker_count += 1
 
     if worker_count <= 0:
         # no workers are running
         raise ServiceUnavailable("No workers are running")
+
+    if worker_count < excepted_worker:
+        raise ServiceUnavailable("Not all workers are running")
     return "It's working"
 
 
