@@ -12,7 +12,6 @@ from redis import from_url
 from rq import get_failed_queue
 from werkzeug.exceptions import ServiceUnavailable
 from datetime import datetime
-from rq_mantis.utils import process_exists
 
 
 app = Flask(__name__)
