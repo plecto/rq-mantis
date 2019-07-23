@@ -12,6 +12,9 @@ from redis import from_url
 from rq import get_failed_queue
 from werkzeug.exceptions import ServiceUnavailable
 from datetime import datetime
+from rq_mantis.utils import process_exists
+
+
 app = Flask(__name__)
 
 
@@ -46,27 +49,34 @@ def health_check():
         # scheduler havent been running for 15 seconds and it should be running every 5
         raise ServiceUnavailable("Scheduler not running")
     excepted_worker = 0
-    for worker in rq.Worker.all():
-        # only run health-check against own workers
-        if worker.name.split('.')[0] != shortname:
-            continue
+    default_queue_workers = 0
+
+    own_workers = [worker for worker in rq.Worker.all() if worker.name.split('.')[0] != shortname]
+    for worker in own_workers:
+        worker_pid = int(worker.name.split('.')[1])
 
         try:
-            os.kill(int(worker.name.split('.')[1]), 0)  # this checks if the process exists or not
+            os.kill(worker_pid, 0)  # this checks if the process exists or not
         except OSError:
+            pass
+        finally:
             excepted_worker += 1
-            continue
 
-        excepted_worker += 1
         if current_app.redis_conn.ttl(worker.key) > 0:
             worker_count += 1
 
-    if worker_count <= 0:
-        # no workers are running
+        for queue in worker.queues:
+            default_queue_workers += 1 if queue.name == 'default' else 0
+
+    if worker_count == 0:
         raise ServiceUnavailable("No workers are running")
 
     if worker_count < excepted_worker:
         raise ServiceUnavailable("Not all workers are running")
+
+    if default_queue_workers == 0:
+        raise ServiceUnavailable("No workers for default queue")
+
     return "It's working"
 
 
