@@ -48,7 +48,7 @@ def health_check():
         # scheduler havent been running for 15 seconds and it should be running every 5
         raise ServiceUnavailable("Scheduler not running")
     excepted_worker = 0
-    default_queue_workers = 0
+    queues_workers = 0
 
     own_workers = [worker for worker in rq.Worker.all() if worker.name.split('.')[0] != shortname]
     for worker in own_workers:
@@ -64,17 +64,16 @@ def health_check():
         if current_app.redis_conn.ttl(worker.key) > 0:
             worker_count += 1
 
-        for queue in worker.queues:
-            default_queue_workers += 1 if queue.name == 'default' else 0
+        queues_workers += len(worker.queues)
 
     if worker_count == 0:
         raise ServiceUnavailable("No workers are running")
 
+    if queues_workers == 0:
+        raise ServiceUnavailable("Workers not assigned to any queue")
+
     if worker_count < excepted_worker:
         raise ServiceUnavailable("Not all workers are running")
-
-    if default_queue_workers == 0:
-        raise ServiceUnavailable("No workers for default queue")
 
     return "It's working"
 
