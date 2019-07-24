@@ -1,6 +1,3 @@
-import os
-import socket
-
 import rq
 from flask import Flask
 from flask import current_app
@@ -8,11 +5,11 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import url_for
-from redis import from_url
+from redis import from_url, ConnectionError
 from rq import get_failed_queue
 from werkzeug.exceptions import ServiceUnavailable
-from datetime import datetime
 
+from rq_mantis.utils import WorkersChecker, get_queues_workers_count
 
 app = Flask(__name__)
 
@@ -35,47 +32,24 @@ def pop_rq_connection(exception=None):
 
 @app.route("/__ht/")
 def health_check():
-    worker_count = 0
-    hostname = socket.gethostname()
-    shortname, _, _ = hostname.partition('.')
-    key = 'scheduler_last_run' + '.' + shortname
-    last_scheduler_timestamp = current_app.redis_conn.get(key)
+    try:
+        workers = rq.Worker.all()
+        queues = rq.Queue.all()
+    except ConnectionError:
+        raise ServiceUnavailable("Cannot establish connection to redis")
 
-    if last_scheduler_timestamp is None:
+    checker = WorkersChecker(current_app.redis_conn, workers, queues)
+
+    if checker.scheduler_too_long_delay():
         raise ServiceUnavailable("Scheduler not running")
-    d = datetime.strptime(last_scheduler_timestamp, '%Y-%m-%dT%H:%M:%S.%f')
-    if (datetime.now() - d).total_seconds() > 15:
-        # scheduler havent been running for 15 seconds and it should be running every 5
-        raise ServiceUnavailable("Scheduler not running")
-    excepted_worker = 0
-    queues_workers = 0
-
-    own_workers = [worker for worker in rq.Worker.all() if worker.name.split('.')[0] != shortname]
-    for worker in own_workers:
-        worker_pid = int(worker.name.split('.')[1])
-
-        try:
-            os.kill(worker_pid, 0)  # this checks if the process exists or not
-        except OSError:
-            pass
-        finally:
-            excepted_worker += 1
-
-        if current_app.redis_conn.ttl(worker.key) > 0:
-            worker_count += 1
-
-        queues_workers += len(worker.queues)
-
-    if worker_count == 0:
+    elif checker.no_active_workers():
         raise ServiceUnavailable("No workers are running")
-
-    if queues_workers == 0:
-        raise ServiceUnavailable("Workers not assigned to any queue")
-
-    if worker_count < excepted_worker:
+    elif checker.process_is_missing() or checker.some_workers_expired():
         raise ServiceUnavailable("Not all workers are running")
-
-    return "It's working"
+    elif checker.queues_without_workers():
+        raise ServiceUnavailable("There are queues without active workers")
+    else:
+        return "It's working"
 
 
 @app.route("/")
@@ -83,23 +57,9 @@ def index():
     workers = rq.Worker.all()
     queues = rq.Queue.all()
 
-    queues_dict = {}
-    for q in queues:
-        queues_dict[q.name] = {'workers': 0, 'queue': q}
+    queues_workers = get_queues_workers_count(workers, queues)
 
-    if 'failed' in queues_dict:
-        del queues_dict['failed']
-
-    # Failed queue
-    fq = get_failed_queue()
-
-    # Count all the workers on the queues
-    for w in workers:
-        for q in w.queues:
-            if q.name in queues_dict:
-                queues_dict[q.name]['workers'] += 1
-
-    return render_template('index.html', queues=queues_dict, failed_queue=fq)
+    return render_template('index.html', queues=queues_workers, failed_queue=get_failed_queue())
 
 
 def get_queue_by_name(name):
