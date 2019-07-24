@@ -28,11 +28,11 @@ jQuery(document).ready(function() {
 			</tr>
 		</thead>
 		<tbody>
-		{% for queue_name, queue_dict in queues.items() %}
+		{% for queue, worker_count in queues.items() %}
 			<tr>
-				<td class=""><a href="/queue/{{ queue_name }}">{{ queue_name }}</a></td>
-				<td class="dashboard-table-value">{{ queue_dict.workers }}</td>
-				<td class="dashboard-table-value">{{ queue_dict.queue.count }}</td>
+				<td class=""><a href="/queue/{{ queue.name }}">{{ queue.name }}</a></td>
+				<td class="dashboard-table-value">{{ worker_count }}</td>
+				<td class="dashboard-table-value">{{ queue.count }}</td>
 			</tr>
 		{% endfor %}
 		</tbody>
