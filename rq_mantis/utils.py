@@ -41,7 +41,7 @@ class WorkersChecker(object):
         try:
             for worker in self._workers:
                 worker_pid = int(worker.name.split(".")[1])
-                os.kill(worker_pid, sig=0)  # checks if process exists only
+                os.kill(worker_pid, 0)  # checks if process exists only
         except OSError:
             return True
         else:
