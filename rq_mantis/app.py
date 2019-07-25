@@ -1,4 +1,5 @@
 import rq
+import socket
 from flask import Flask
 from flask import current_app
 from flask import redirect
@@ -38,14 +39,22 @@ def health_check():
     except ConnectionError:
         raise ServiceUnavailable("Cannot establish connection to redis")
 
-    checker = WorkersChecker(current_app.redis_conn, workers, queues)
+    machine_workers = [
+        worker
+        for worker in workers
+        if worker.name.split('.')[0] == socket.gethostname().partition(".")[0]
+    ]
+
+    checker = WorkersChecker(current_app.redis_conn, machine_workers, queues)
 
     if checker.scheduler_too_long_delay():
         raise ServiceUnavailable("Scheduler not running")
     elif checker.no_active_workers():
         raise ServiceUnavailable("No workers are running")
-    elif checker.process_is_missing() or checker.some_workers_expired():
-        raise ServiceUnavailable("Not all workers are running")
+    elif checker.process_is_missing():
+        raise ServiceUnavailable("Some worker processes are missing")
+    elif checker.some_workers_expired():
+        raise ServiceUnavailable("Some worker processes have expired TTL")
     elif checker.queues_without_workers():
         raise ServiceUnavailable("There are queues without active workers")
     else:
