@@ -1,7 +1,6 @@
 import os
 import socket
 from datetime import datetime
-from collections import defaultdict
 
 
 def get_queues_workers_count(workers, queues):
@@ -59,7 +58,7 @@ class WorkersChecker(object):
         """There are queues without active workers"""
         return any(
             queue.count > 0 and workers == 0
-            for queue, workers in get_queues_workers_count(self._workers, self._queues)
+            for queue, workers in get_queues_workers_count(self._workers, self._queues).items()
         )
 
     def scheduler_too_long_delay(self):
