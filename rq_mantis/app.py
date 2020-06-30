@@ -10,7 +10,7 @@ from redis import from_url, ConnectionError
 from rq import get_failed_queue
 from werkzeug.exceptions import ServiceUnavailable
 
-from rq_mantis.utils import WorkersChecker, get_queues_workers_count
+from rq_mantis.utils import WorkersChecker, get_queues_data
 
 app = Flask(__name__)
 
@@ -64,11 +64,12 @@ def health_check():
 @app.route("/")
 def index():
     workers = rq.Worker.all()
-    queues = rq.Queue.all()
+    queues = [q for q in rq.Queue.all() if q.name != 'failed']
+    registries_jobs_count = {q.name: rq.registry.StartedJobRegistry(q.name).count for q in queues}
 
-    queues_workers = get_queues_workers_count(workers, queues)
+    queues_data = get_queues_data(workers, queues, registries_jobs_count)
 
-    return render_template('index.html', queues=queues_workers, failed_queue=get_failed_queue())
+    return render_template('index.html', queues=queues_data, failed_queue=get_failed_queue())
 
 
 def get_queue_by_name(name):
@@ -108,8 +109,9 @@ def queue_empty(name):
 @app.route("/queue/<name>")
 def queue_detail(name):
     queue = get_queue_by_name(name)
+    running_jobs = rq.registry.StartedJobRegistry(name).get_job_ids()
 
-    return render_template('queue.html', queue=queue)
+    return render_template('queue.html', queue=queue, running_jobs=running_jobs)
 
 
 @app.route("/queue/failed/job/<uuid>/requeue", methods=["POST"])
