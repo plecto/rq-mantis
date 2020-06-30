@@ -7,6 +7,17 @@ from datetime import datetime
 QueueData = namedtuple('QueueData', ('queue', 'workers', 'running_jobs'))
 
 
+def get_queues_workers_count(workers, queues):
+    valid_queues = {queue for queue in queues if queue.name != "failed"}
+    queues_workers = dict.fromkeys(list(valid_queues), 0)
+    # Count all the workers on the queues
+    for worker in workers:
+        for queue in valid_queues.intersection(worker.queues):
+            queues_workers[queue] += 1
+
+    return queues_workers
+
+
 def get_queues_data(workers, queues, registries_jobs_count):
     """
     Returns list with tuples of queue, workers_count and running_jobs_count
@@ -16,14 +27,7 @@ def get_queues_data(workers, queues, registries_jobs_count):
         (queue3, 0, 0)
     ]
     """
-    valid_queues = {queue for queue in queues if queue.name != "failed"}
-    queues_workers = dict.fromkeys(list(valid_queues), 0)
-
-    # Count all the workers on the queues
-    for worker in workers:
-        for queue in valid_queues.intersection(worker.queues):
-            queues_workers[queue] += 1
-
+    queues_workers = get_queues_workers_count(workers=workers, queues=queues)
     return [
         QueueData(queue=queue, workers=workers_count, running_jobs=registries_jobs_count.get(queue.name, 0))
         for queue, workers_count in queues_workers.items()
