@@ -32,9 +32,9 @@ jQuery(document).ready(function() {
 		{% for queue_data in queues %}
 			<tr>
 				<td class=""><a href="/queue/{{ queue_data.queue.name }}">{{ queue_data.queue.name }}</a></td>
-				<td class="dashboard-table-value">{{ queue_data.worker_count }}</td>
+				<td class="dashboard-table-value">{{ queue_data.workers }}</td>
 				<td class="dashboard-table-value">{{ queue_data.queue.count }}</td>
-                <td class="dashboard-table-value">{{ queue_data.running_jobs.count }}</td>
+                <td class="dashboard-table-value">{{ queue_data.running_jobs }}</td>
 			</tr>
 		{% endfor %}
 		</tbody>
