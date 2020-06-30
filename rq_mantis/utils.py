@@ -1,16 +1,20 @@
 import os
 import socket
+from collections import namedtuple
 from datetime import datetime
 
 
-def get_queues_workers_count(workers, queues):
+QueueData = namedtuple('QueueData', ('queue', 'workers', 'running_jobs'))
+
+
+def get_queues_data(workers, queues, registries_jobs_count):
     """
-    Returns dict with queue (actual objects - as they are hashable) and workers count:
-    {
-      queue_object: 4,
-      queue_object_2: 0,
-      queue_object_3: 1
-    }
+    Returns list with tuples of queue, workers_count and running_jobs_count
+    [
+        (queue, 3, 10),
+        (queue2, 4, 7),
+        (queue3, 0, 0)
+    ]
     """
     valid_queues = {queue for queue in queues if queue.name != "failed"}
     queues_workers = dict.fromkeys(list(valid_queues), 0)
@@ -20,7 +24,10 @@ def get_queues_workers_count(workers, queues):
         for queue in valid_queues.intersection(worker.queues):
             queues_workers[queue] += 1
 
-    return queues_workers
+    return [
+        QueueData(queue=queue, workers=workers_count, running_jobs=registries_jobs_count.get(queue.name, 0))
+        for queue, workers_count in queues_workers.items()
+    ]
 
 
 class WorkersChecker(object):

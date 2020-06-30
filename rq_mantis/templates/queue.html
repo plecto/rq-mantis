@@ -18,6 +18,7 @@
 		{% endif %}
 
 		<div class="queue">
+            <h1>Enqueued</h1>
 			{% for job in queue.jobs|sort(attribute='created_at', reverse=True)%}
 				<div class="queue-job">
 					{% if queue.name == 'failed' %}
@@ -60,6 +61,18 @@
 					</div>
 				</div>
 			{% endfor %}
+			<h1>Running jobs</h1>
+			{% for job_id in running_jobs %}
+				<div class="queue-job-part">
+					<table class="table">
+						<tbody>
+							<tr>
+								<td>{{ job_id }}</td>
+							</tr>
+						</tbody>
+					</table>
+                </div>
+            {% endfor %}
 		</div>
 
 	{% else %}
