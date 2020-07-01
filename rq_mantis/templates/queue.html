@@ -74,7 +74,19 @@
 				</div>
 			{% endfor %}
 		</div>
-
+	{% elif running_jobs %}
+			<h1>Running jobs</h1>
+			{% for job_id in running_jobs %}
+				<div class="queue-job-part">
+					<table class="table">
+						<tbody>
+							<tr>
+								<td>{{ job_id }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			{% endfor %}
 	{% else %}
 		<p>No jobs in queue</p>
 	{% endif %}
