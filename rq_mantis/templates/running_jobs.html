@@ -1,0 +1,29 @@
+<h1>Running jobs</h1>
+{% for job in running_jobs %}
+    <div class="queue-job-part">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th class="text-right">Status</th>
+                    <th class="text-right">Name</th>
+                    <th class="text-right">Args</th>
+                    <th class="text-right">Kwargs</th>
+                    <th class="text-right">Timeout</th>
+                    <th class="text-right">Created at</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ job.id }}</td>
+                    <td>{{ job.status }}</td>
+                    <td>{{ job.func_name }}</td>
+                    <td>{{ job.args }}</td>
+                    <td>{{ job.kwargs }}</td>
+                    <td>{{ job.timeout }}</td>
+                    <td>{{ job.created_at|datetime }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endfor %}

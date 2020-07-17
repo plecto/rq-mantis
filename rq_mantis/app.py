@@ -8,6 +8,7 @@ from flask import request
 from flask import url_for
 from redis import from_url, ConnectionError
 from rq import get_failed_queue
+from rq.job import Job
 from werkzeug.exceptions import ServiceUnavailable
 
 from rq_mantis.utils import WorkersChecker, get_queues_data
@@ -109,7 +110,10 @@ def queue_empty(name):
 @app.route("/queue/<name>")
 def queue_detail(name):
     queue = get_queue_by_name(name)
-    running_jobs = rq.registry.StartedJobRegistry(name).get_job_ids()
+    running_jobs = {
+        Job.fetch(job_id)
+        for job_id in rq.registry.StartedJobRegistry(name).get_job_ids()
+    }
 
     return render_template('queue.html', queue=queue, running_jobs=running_jobs)
 
