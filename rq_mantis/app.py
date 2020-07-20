@@ -11,9 +11,9 @@ from rq import get_failed_queue
 from rq.job import Job
 from werkzeug.exceptions import ServiceUnavailable
 
-from rq_mantis.utils import WorkersChecker, get_queues_data
+from rq_mantis.utils import WorkersChecker, get_queues_data, get_paginated_jobs
 import rq_dashboard
-
+from flask_paginate import Pagination, get_page_args
 
 app = Flask(__name__)
 app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rq")
@@ -112,13 +112,25 @@ def queue_empty(name):
 
 @app.route("/queue/<name>")
 def queue_detail(name):
+    page, per_page, offset = get_page_args(
+        page_parameter='page',
+        per_page_parameter='per_page'
+    )
     queue = get_queue_by_name(name)
+    jobs = get_paginated_jobs(queue.jobs, offset=offset, per_page=per_page)
+    pagination = Pagination(page=page, total=queue.count, record_name='jobs')
     running_jobs = {
         Job.fetch(job_id)
         for job_id in rq.registry.StartedJobRegistry(name).get_job_ids()
     }
 
-    return render_template('queue.html', queue=queue, running_jobs=running_jobs)
+    return render_template(
+        'queue.html',
+        queue_name=queue.name,
+        jobs=jobs,
+        running_jobs=running_jobs,
+        pagination=pagination,
+    )
 
 
 @app.route("/queue/failed/job/<uuid>/requeue", methods=["POST"])

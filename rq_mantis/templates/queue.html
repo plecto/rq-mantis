@@ -2,16 +2,19 @@
 
 {% block content %}
 <div class="container">
-	<h2>{{ queue.name }}</h2>
+	<h2>{{ queue_name }}</h2>
 
-	{% if queue.count %}
+    {{ pagination.info }}
+    {{ pagination.links }}
 
-		{% if queue.name == 'failed' %}
+	{% if jobs %}
+
+		{% if queue_name == 'failed' %}
 			<form action="/queue/failed/requeue-all" method="POST">
 				<button type="submit">Requeue all</button>
 			</form>
 
-			<form action="/queue/{{ queue.name }}/clear" method="POST">
+			<form action="/queue/{{ queue_name }}/clear" method="POST">
 				<button type="submit">Clear</button>
 			</form>
 
@@ -19,9 +22,9 @@
 
 		<div class="queue">
             <h1>Enqueued</h1>
-			{% for job in queue.jobs|sort(attribute='created_at', reverse=True)%}
+			{% for job in jobs %}
 				<div class="queue-job">
-					{% if queue.name == 'failed' %}
+					{% if queue_name == 'failed' %}
 						<div class="queue-job-part">
 							<table class="table">
 								<tbody>

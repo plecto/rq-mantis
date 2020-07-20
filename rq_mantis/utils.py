@@ -2,9 +2,15 @@ import os
 import socket
 from collections import namedtuple
 from datetime import datetime
+from operator import attrgetter
 
 
+get_created_at = attrgetter('created_at')
 QueueData = namedtuple('QueueData', ('queue', 'workers', 'running_jobs'))
+
+
+def get_paginated_jobs(jobs, offset=0, per_page=10):
+    return sorted(jobs, key=get_created_at, reverse=True)[offset: offset + per_page]
 
 
 def get_queues_workers_count(workers, queues):
