@@ -1,5 +1,4 @@
 <h1>Running jobs</h1>
-{% for job in running_jobs %}
     <div class="queue-job-part">
         <table class="table">
             <thead>
@@ -14,6 +13,7 @@
                 </tr>
             </thead>
             <tbody>
+            {% for job in running_jobs %}
                 <tr>
                     <td>{{ job.id }}</td>
                     <td>{{ job.status }}</td>
@@ -23,7 +23,7 @@
                     <td>{{ job.timeout }}</td>
                     <td>{{ job.created_at }}</td>
                 </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>
-{% endfor %}

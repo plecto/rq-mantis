@@ -12,8 +12,11 @@ from rq.job import Job
 from werkzeug.exceptions import ServiceUnavailable
 
 from rq_mantis.utils import WorkersChecker, get_queues_data
+import rq_dashboard
+
 
 app = Flask(__name__)
+app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rq")
 
 
 @app.before_first_request
