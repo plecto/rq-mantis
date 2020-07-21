@@ -9,7 +9,7 @@ setup(
     license='MIT',
     packages=['rq_mantis'],
     install_requires=[
-        open("requirements.txt").readlines(),
+        open("requirements.txt").read().splitlines(),
     ],
     entry_points={
         'console_scripts': ['rq-mantis=rq_mantis.cmd:run']
