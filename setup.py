@@ -9,7 +9,10 @@ setup(
     license='MIT',
     packages=['rq_mantis'],
     install_requires=[
-        open("requirements.txt").read().splitlines(),
+        'rq',
+        'flask',
+        'flask-paginate',
+        'rq-dashboard'
     ],
     entry_points={
         'console_scripts': ['rq-mantis=rq_mantis.cmd:run']
