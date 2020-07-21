@@ -9,8 +9,7 @@ setup(
     license='MIT',
     packages=['rq_mantis'],
     install_requires=[
-        'rq',
-        'flask',
+        open("requirements.txt").readlines(),
     ],
     entry_points={
         'console_scripts': ['rq-mantis=rq_mantis.cmd:run']
