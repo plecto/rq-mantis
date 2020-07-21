@@ -12,11 +12,9 @@ from rq.job import Job
 from werkzeug.exceptions import ServiceUnavailable
 
 from rq_mantis.utils import WorkersChecker, get_queues_data, get_paginated_jobs
-import rq_dashboard
 from flask_paginate import Pagination, get_page_args
 
 app = Flask(__name__)
-app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rq")
 
 
 @app.before_first_request

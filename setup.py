@@ -12,7 +12,6 @@ setup(
         'rq<1.0',
         'flask',
         'flask-paginate',
-        'rq-dashboard'
     ],
     entry_points={
         'console_scripts': ['rq-mantis=rq_mantis.cmd:run']
