@@ -9,7 +9,7 @@ setup(
     license='MIT',
     packages=['rq_mantis'],
     install_requires=[
-        'rq<1.0',
+        'rq',
         'flask',
         'flask-paginate',
     ],
