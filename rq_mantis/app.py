@@ -94,7 +94,7 @@ def queue_requeue_all():
     fq = get_failed_queue()
     for job_id in fq.job_ids:
         requeue_job(job_id)
-    return redirect(url_for('index', name='failed'))
+    return redirect(url_for('index', name='failed', _external=True))
 
 
 @app.route("/queue/<name>/clear", methods=["POST"])
@@ -105,7 +105,7 @@ def queue_empty(name):
 
     queue = get_queue_by_name(name)
     queue.empty()
-    return redirect(url_for('queue_detail', name=name))
+    return redirect(url_for('queue_detail', name=name, _external=True))
 
 
 @app.route("/queue/<name>")
@@ -138,7 +138,7 @@ def requeue_job(uuid):
         return render_confirm()
 
     rq.requeue_job(uuid)
-    return redirect(url_for('index', name='failed'))
+    return redirect(url_for('index', name='failed', _external=True))
 
 
 @app.route("/queue/failed/job/<uuid>/clear", methods=["POST"])
@@ -148,13 +148,13 @@ def clear_failed_job(uuid):
         return render_confirm()
 
     get_failed_queue().remove(uuid)
-    return redirect(url_for('index', name='failed'))
+    return redirect(url_for('index', name='failed', _external=True))
 
 
 @app.route("/queue/<name>/job/<uuid>/cancel")
 def cancel(name, uuid):
     rq.cancel_job(uuid)
-    return redirect(url_for('queue_detail', name=name))
+    return redirect(url_for('queue_detail', name=name, _external=True))
 
 
 def render_confirm():
