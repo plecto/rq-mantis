@@ -9,7 +9,7 @@ get_created_at = attrgetter('created_at')
 QueueData = namedtuple('QueueData', ('queue', 'workers', 'running_jobs'))
 
 
-def get_paginated_jobs(jobs, offset=0, per_page=10):
+def get_paginated_jobs(jobs, offset=0, per_page=1000):
     return sorted(jobs, key=get_created_at, reverse=True)[offset: offset + per_page]
 
 
