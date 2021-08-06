@@ -86,6 +86,8 @@ class WorkersChecker(object):
         last_scheduler_timestamp = self._redis_conn.get(key)
         if last_scheduler_timestamp is None:
             return False
+        if isinstance(last_scheduler_timestamp, bytes):
+            last_scheduler_timestamp = last_scheduler_timestamp.decode('utf-8')
 
         d = datetime.strptime(last_scheduler_timestamp, "%Y-%m-%dT%H:%M:%S.%f")
         return (datetime.now() - d).total_seconds() > self.SCHEDULER_TIMEOUT
