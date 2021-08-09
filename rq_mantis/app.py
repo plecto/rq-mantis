@@ -8,6 +8,7 @@ from flask import request
 from flask import url_for
 from redis import from_url, ConnectionError
 from rq import get_failed_queue
+from rq.exceptions import UnpickleError
 from rq.job import Job
 from werkzeug.exceptions import ServiceUnavailable
 
@@ -117,10 +118,21 @@ def queue_detail(name):
     queue = get_queue_by_name(name)
     jobs = get_paginated_jobs(queue.jobs, offset=offset, per_page=per_page)
     pagination = Pagination(page=page, total=queue.count, record_name='jobs')
-    running_jobs = {
-        Job.fetch(job_id)
-        for job_id in rq.registry.StartedJobRegistry(name).get_job_ids()
-    }
+    running_jobs = []
+    for job_id in rq.registry.StartedJobRegistry(name).get_job_ids():
+        job = Job.fetch(job_id)
+        try:
+            cleaned_func_name = job.func_name
+            cleaned_args = job.cleaned_args
+            cleaned_kwargs = job.cleaned_kwargs
+        except UnpickleError:
+            cleaned_func_name = 'UnpickleError'
+            cleaned_args = 'UnpickleError'
+            cleaned_kwargs = 'UnpickleError'
+        setattr(job, 'cleaned_func_name', cleaned_func_name)
+        setattr(job, 'cleaned_args', cleaned_args)
+        setattr(job, 'cleaned_kwargs', cleaned_kwargs)
+        running_jobs.append(job)
 
     return render_template(
         'queue.html',
