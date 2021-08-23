@@ -122,9 +122,9 @@ def queue_detail(name):
     for job_id in rq.registry.StartedJobRegistry(name).get_job_ids():
         job = Job.fetch(job_id)
         try:
-            cleaned_func_name = job.func_name
-            cleaned_args = job.cleaned_args
-            cleaned_kwargs = job.cleaned_kwargs
+            cleaned_func_name = getattr(job, 'func_name', 'No function name')
+            cleaned_args = getattr(job, 'cleaned_args', 'No cleaned args')
+            cleaned_kwargs = getattr(job, 'cleaned_kwargs', 'No cleaned kwargs')
         except UnpickleError:
             cleaned_func_name = 'UnpickleError'
             cleaned_args = 'UnpickleError'
