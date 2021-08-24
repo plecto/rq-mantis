@@ -123,8 +123,8 @@ def queue_detail(name):
         job = Job.fetch(job_id)
         try:
             cleaned_func_name = job.func_name
-            cleaned_args = job.cleaned_args
-            cleaned_kwargs = job.cleaned_kwargs
+            cleaned_args = getattr(job, 'cleaned_args', [])
+            cleaned_kwargs = getattr(job, 'cleaned_kwargs', {})
         except UnpickleError:
             cleaned_func_name = 'UnpickleError'
             cleaned_args = 'UnpickleError'
